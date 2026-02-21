@@ -1,0 +1,29 @@
+trigger:
+- main
+
+stages:
+
+# ---------- BUILD ----------
+- stage: Build
+  jobs:
+  - template: templates/build.yml
+
+# ---------- DEV ----------
+- stage: Deploy_Dev
+  dependsOn: Build
+  jobs:
+  - template: templates/deploy.yml
+    parameters:
+      environment: dev
+
+# ---------- PROD ----------
+- stage: Deploy_Prod
+  dependsOn: Deploy_Dev
+  condition: succeeded()
+  approval:
+    approvals:
+    - approvalType: Manual
+  jobs:
+  - template: templates/deploy.yml
+    parameters:
+      environment: prod
